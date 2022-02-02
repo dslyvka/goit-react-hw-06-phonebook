@@ -1,20 +1,28 @@
 import { Fragment } from 'react';
 import { nanoid } from 'nanoid';
-import Filter from './components/Filter/Filter';
 
+import Filter from './components/Filter/Filter';
 import Form from './components/Form/Form';
 import Contacts from './components/Contacts/Contacts';
 import { SectionStyled } from './components/Contacts/SectionContacts.styled';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+
+import { useSelector, useDispatch } from 'react-redux';
+
+import {
+  addContact,
+  deleteContact,
+  searchContacts,
+} from './components/redux/phonebook-actions';
 
 function App() {
-  const [contacts, setContacts] = useState(() =>
-    JSON.parse(localStorage.getItem('contacts') ?? []),
-  );
-  const [filter, setFilter] = useState('');
   const [number, setNumber] = useState('');
   const [name, setName] = useState('');
+
+  const { filter } = useSelector(state => state.contacts);
+  const contacts = useSelector(state => state.contacts.items);
+  const dispatch = useDispatch();
 
   const onInput = e => {
     const form = e.currentTarget.name;
@@ -30,13 +38,8 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
-
   const onClick = e => {
     e.preventDefault();
-    // console.log(e.currentTarget);
     const id = nanoid();
 
     if (e.target.checkValidity()) {
@@ -50,12 +53,9 @@ function App() {
         alert(`${name} is already in contacts`);
         return;
       }
-      setContacts([...contacts, { name, id, number }]);
+      dispatch(addContact({ name, id, number }));
+      // Пропихиваем объект, котоорый в редьюсере будет в виде payload
     }
-  };
-
-  const searchContacts = e => {
-    setFilter(e.currentTarget.value);
   };
 
   const filterContacts = () => {
@@ -63,13 +63,7 @@ function App() {
     const filteredContacts = contacts.filter(contact =>
       contact.name.toLowerCase().includes(contactNormalized),
     );
-    // console.log(filteredContacts);
     return filteredContacts;
-  };
-
-  const deleteContact = id => {
-    let newContacts = contacts.filter(contact => contact.id !== id);
-    setContacts([...newContacts]);
   };
 
   const filteredContacts = filterContacts();

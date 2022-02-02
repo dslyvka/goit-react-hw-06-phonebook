@@ -1,7 +1,10 @@
 import { Fragment } from 'react';
-import {StyledList} from './Contacts.styled'
+import { StyledList } from './Contacts.styled';
+import { useDispatch } from 'react-redux';
+
 
 function Contacts({ contacts, deleteContact }) {
+  const dispatch = useDispatch();
   return (
     <Fragment>
       <StyledList>
@@ -11,7 +14,14 @@ function Contacts({ contacts, deleteContact }) {
             <li key={id}>
               <p>
                 {name}: {number}
-                <button id={id} onClick={() => deleteContact(id)}>delete</button>
+                <button
+                  id={id}
+                  onClick={() => {
+                    dispatch(deleteContact(id));
+                  }}
+                >
+                  delete
+                </button>
               </p>
             </li>
           );
